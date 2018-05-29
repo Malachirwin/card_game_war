@@ -22,7 +22,20 @@ class CardDeck
   end
 
   def deal
-    0
+    shuffle
+    player1_hand =[]
+    player2_hand =[]
+    alternator = 0
+    while has_cards?
+      if alternator == 0
+        player1_hand << remove_top_card
+        alternator = 1
+      else
+        player2_hand << remove_top_card
+        alternator = 0
+      end
+    end
+    [player1_hand, player2_hand]
   end
 
   def remove_top_card

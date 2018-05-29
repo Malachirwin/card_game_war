@@ -5,11 +5,11 @@ class Card
     @rank = rank
   end
 
-  def rank?
+  def rank
     @rank
   end
 
-  def suit?
+  def suit
     @suit
   end
 end
