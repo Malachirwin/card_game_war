@@ -15,4 +15,8 @@ describe "CardDeck" do
     deck = CardDeck.new
     expect(deck.has_cards?).to eq true
   end
+  it 'removes top card' do
+    deck = CardDeck.new
+    expect(deck.remove_top_card).to be_instance_of Card
+  end
 end
