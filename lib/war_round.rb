@@ -1,15 +1,16 @@
-require 'card'
-require 'pry'
+require 'card_deck'
 
 class WarRound
 
-  def initalize
-    result = nil
-  end
-
   def war_round(player1_card, player2_card)
     if player1_card.rank < player2_card.rank
-      result = "player 2 wins"
+      war_result = "player 2 wins"
+    elsif
+      player1_card.rank > player2_card.rank
+      war_result = "player 1 wins"
+    else
+      war_result = "tie"
     end
+    war_result
   end
 end
