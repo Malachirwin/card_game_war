@@ -35,13 +35,14 @@ describe 'WarRound' do
     expect(player2.cards_left).to eq (player2_original_cards_left + 1)
   end
   it 'plays a round of war tie' do
-    player1_card = [Card.new('D', 10), Card.new('H', 3)]
-    player2_card = [Card.new('C', 10), Card.new('H', 5)]
+    tie_count = 1
+    player1_card = [Card.new('D', 10), Card.new('H', 3), Card.new('H', 2), Card.new('H', 7)]
+    player2_card = [Card.new('C', 10), Card.new('H', 5), Card.new('H', 6), Card.new('H', 8)]
     player1 = Player.new(player1_card)
     player2 = Player.new(player2_card)
     player2_original_cards_left = player2.cards_left
     player1_original_cards_left = player1.cards_left
     WarRound.new.war_round(player1, player2)
-    expect(player2.cards_left).to eq (player2_original_cards_left + 2)
+    expect(player2.cards_left).to eq (player2_original_cards_left + (tie_count + 2))
   end
 end

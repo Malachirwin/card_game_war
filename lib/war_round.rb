@@ -27,6 +27,11 @@ class WarRound
         player1.take(@add_cards)
       end
     else
+      @tie_count += 1
+      @tie_count.times do |cards_for_tie|
+        @add_cards << player1.play
+        @add_cards << player2.play
+      end
       @add_cards << player1_card
       @add_cards << player2_card
       war_result = war_round(player1, player2)
