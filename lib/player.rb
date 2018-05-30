@@ -8,7 +8,7 @@ class Player
   end
 
   def play
-    @cards.pop
+    @cards.shift
   end
 
   def take(cards)
