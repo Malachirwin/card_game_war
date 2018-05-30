@@ -13,4 +13,10 @@ class WarRound
     end
     war_result
   end
+
+  def play(player1, player2)
+    player1_card = player1.play
+    player2_card = player2.play
+    player2.take([player1_card, player2_card])
+  end
 end
