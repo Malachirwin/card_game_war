@@ -1,47 +1,39 @@
 require_relative 'card_deck'
 require_relative 'player'
 require_relative 'card'
-require 'pry'
 
 
 class WarRound
 
-  def initialize
-    @add_cards = []
-    @tie_count = 0
-  end
-
-  def war_round(player1, player2)
-    player1_card = player1.play
-    player2_card = player2.play
-    if player1_card.rank.to_i < player2_card.rank.to_i
-      player2.take([player1_card, player2_card])
-      war_result = "player 2 wins"
-      if @add_cards != []
-        player2.take(@add_cards)
+  def war_round(player1, player2, played_cards = [])
+    round_winner = ''
+    player2_cards_left = player2.cards_left
+    player1_cards_left = player1.cards_left
+    if player1.cards_left > 0 && player2.cards_left > 0
+      player1_card = player1.play
+      player2_card = player2.play
+      played_cards << player1_card
+      played_cards << player2_card
+      if player1_card.rank.to_i < player2_card.rank.to_i
+        player2.take(played_cards)
+        round_winner = 'player2'
+      elsif player1_card.rank.to_i > player2_card.rank.to_i
+        player1.take(played_cards)
+        round_winner = 'player1'
+      else
+        round_winner = 'tie'
+        played_cards << player1.play
+        played_cards << player2.play
+        war_round(player1, player2, played_cards)
       end
-    elsif player1_card.rank.to_i > player2_card.rank.to_i
-      player1.take([player1_card, player2_card])
-      war_result = "player 1 wins"
-      if @add_cards != []
-        player1.take(@add_cards)
-      end
-    else
-      @tie_count += 1
-      @tie_count.times do |cards_for_tie|
-        @add_cards << player1.play
-        @add_cards << player2.play
-      end
-      @add_cards << player1_card
-      @add_cards << player2_card
-      war_result = war_round(player1, player2)
+    elsif player2_cards_left == 0
+      player1.take(played_cards)
+    elsif player1_cards_left == 0
+      player2.take(played_cards)
     end
-    war_result
+    player1.shuffle_hand
+    player2.shuffle_hand
+    round_winner
   end
 
-  # def play(player1, player2)
-  #   player1_card = player1.play
-  #   player2_card = player2.play
-  #   player2.take([player1_card, player2_card])
-  # end
 end

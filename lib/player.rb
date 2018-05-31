@@ -14,4 +14,8 @@ class Player
   def take(cards)
     @cards.push(*cards)
   end
+
+  def shuffle_hand
+    @cards = @cards.shuffle
+  end
 end

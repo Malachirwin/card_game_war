@@ -14,28 +14,26 @@ class CardDeck
   end
 
   def shuffle
-    @deck = @deck.shuffle
+    @deck = @deck.shuffle.shuffle.shuffle
   end
 
   def cards_left
     @deck.length
   end
 
-  def deal
+  def deal(player1 = [], player2 = [])
     shuffle
-    player1_hand =[]
-    player2_hand =[]
     alternator = 0
     while has_cards?
       if alternator == 0
-        player1_hand << remove_top_card
+        player1 << remove_top_card
         alternator = 1
       else
-        player2_hand << remove_top_card
+        player2 << remove_top_card
         alternator = 0
       end
     end
-    [player1_hand, player2_hand]
+    [player1, player2]
   end
 
   def remove_top_card

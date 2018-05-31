@@ -9,7 +9,7 @@ describe "CardDeck" do
 
   it 'should deal the top card' do
     deck = CardDeck.new
-    expect(deck.deal).to be_instance_of Array
+    expect(deck.deal).to be_instance_of Array 
   end
   it 'returns true if deck has cards' do
     deck = CardDeck.new

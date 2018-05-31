@@ -12,4 +12,7 @@ class Card
   def suit
     @suit
   end
+  def value
+    [@suit, @rank]
+  end
 end
