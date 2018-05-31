@@ -8,7 +8,7 @@ class CardDeck
     suits.map do |suit|
       13.times.map do |number|
         rank = number + 1
-        Card.new(suit, rank.to_s)
+        Card.new(suit, rank)
       end
     end.flatten
   end

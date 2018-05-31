@@ -16,12 +16,12 @@ class WarRound
       player2_card = player2.play
       played_cards << player1_card
       played_cards << player2_card
-      if player1_card.rank.to_i < player2_card.rank.to_i
+      if player1_card.rank < player2_card.rank
         player2.take(played_cards)
         round_winner = 'player2'
         winning_card = player2_card
         losing_card = player1_card
-      elsif player1_card.rank.to_i > player2_card.rank.to_i
+      elsif player1_card.rank > player2_card.rank
         player1.take(played_cards)
         round_winner = 'player1'
         winning_card = player1_card
