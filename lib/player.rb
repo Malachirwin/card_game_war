@@ -1,6 +1,11 @@
 class Player
-  def initialize(cards=[])
+  def initialize(name, cards=[])
     @cards = cards
+    @name = name
+  end
+
+  def name
+    @name
   end
 
   def cards_left
