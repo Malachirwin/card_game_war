@@ -16,6 +16,7 @@ class WarRound
       player2_card = player2.play
       played_cards << player1_card
       played_cards << player2_card
+      played_cards = played_cards.shuffle
       if player1_card.rank < player2_card.rank
         player2.take(played_cards)
         round_winner = 'player2'
