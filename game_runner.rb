@@ -1,4 +1,4 @@
-require_relative 'war_game'
+require_relative 'lib/war_game'
 
 counter = 0
 

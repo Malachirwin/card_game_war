@@ -1,7 +1,7 @@
-require_relative 'lib/player'
-require_relative 'lib/card_deck'
-require_relative 'lib/card'
-require_relative 'lib/war_round'
+require 'player'
+require 'card_deck'
+require 'card'
+require 'war_round'
 
 class WarGame
   def start
