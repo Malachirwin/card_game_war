@@ -27,7 +27,7 @@ class MockWarSocketClient
   end
 end
 
-describe WarSocketServer do #-------------------------------------------------------------
+describe WarSocketServer do
   before(:each) do
     @clients = []
     @server = WarSocketServer.new
@@ -43,18 +43,17 @@ describe WarSocketServer do #---------------------------------------------------
   it "is not listening on a port before it is started"  do
     expect {MockWarSocketClient.new(@server.port_number)}.to raise_error(Errno::ECONNREFUSED)
   end
-
   it "accepts new clients and starts a game if possible" do
     @server.start
     client1 = MockWarSocketClient.new(@server.port_number)
     @clients.push(client1)
     @server.accept_new_client("Player 1")
-    @server.create_game_if_possible(@clients)
+    @server.create_game_if_possible
     expect(@server.games.count).to be 0
     client2 = MockWarSocketClient.new(@server.port_number)
     @clients.push(client2)
     @server.accept_new_client("Player 2")
-    @server.create_game_if_possible(@clients)
+    @server.create_game_if_possible
     expect(@server.games.count).to be 1
   end
 
@@ -63,16 +62,20 @@ describe WarSocketServer do #---------------------------------------------------
     client1 = MockWarSocketClient.new(@server.port_number)
     @clients.push(client1)
     @server.accept_new_client("Player1")
+    expect(client1.capture_output).to eq "Welcome, waiting for opponent.\n"
     client2 = MockWarSocketClient.new(@server.port_number)
     @clients.push(client2)
     @server.accept_new_client("Player2")
-    @server.create_game_if_possible(@clients)
-    @server.prepare_player
-    expect(client1.capture_output.chomp).to eq "Are you ready to play war?"
-    expect(client2.capture_output.chomp).to eq "Are you ready to play war?"
+    @server.create_game_if_possible
+    expect(client2.capture_output).to eq "Welcome, the game will start soon.\n"
+    client3 = MockWarSocketClient.new(@server.port_number)
+    @clients.push(client3)
+    @server.accept_new_client("Player2")
+    @server.create_game_if_possible
+    expect(client3.capture_output).to eq "Welcome, waiting for opponent.\n"
   end
 
-  it "make sure mock player gets the right message" do
+  it "sees if players are ready" do
     @server.start
     client1 = MockWarSocketClient.new(@server.port_number)
     @clients.push(client1)
@@ -80,14 +83,26 @@ describe WarSocketServer do #---------------------------------------------------
     client2 = MockWarSocketClient.new(@server.port_number)
     @clients.push(client2)
     @server.accept_new_client("Player2")
-    @server.create_game_if_possible(@clients)
-    @server.prepare_player
-    client1.capture_output.chomp
-    client2.capture_output.chomp
+    @server.create_game_if_possible
     expect(@server.ready_to_play_next_round).to eq false
     client1.provide_input('yes')
     client2.provide_input('yes')
     expect(@server.ready_to_play_next_round).to eq true
+  end
+
+  context 'war game' do
+    before(:each) do
+      @server.start
+      client1 = MockWarSocketClient.new(@server.port_number)
+      @clients.push(client1)
+      @server.accept_new_client("Player1")
+      client2 = MockWarSocketClient.new(@server.port_number)
+      @clients.push(client2)
+      @server.accept_new_client("Player2")
+      @server.create_game_if_possible
+    end
+
+    it ''
   end
 
   # Add more tests to make sure the game is being played
