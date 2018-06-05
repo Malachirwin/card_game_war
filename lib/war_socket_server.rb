@@ -5,7 +5,9 @@ require_relative 'war_round'
 require_relative 'card'
 
 class WarSocketServer
+
   attr_reader :player1, :player2
+
   def initialize
     @games = []
     @player1 = "available"
@@ -55,7 +57,8 @@ class WarSocketServer
     return false
   end
 
-  def stop 
+  def stop
     @server.close if @server
   end
+  
 end
