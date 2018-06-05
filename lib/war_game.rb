@@ -1,7 +1,6 @@
-require 'player'
-require 'card_deck'
-require 'card'
-require 'war_round'
+require_relative 'player'
+require_relative 'card_deck'
+require_relative 'war_round'
 
 class WarGame
   def start
