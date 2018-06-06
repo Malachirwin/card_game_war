@@ -6,20 +6,19 @@ require_relative 'card'
 require_relative 'war_game'
 
 class WarSocketServer
-
-  attr_reader :player1, :player2, :games
+  attr_reader :player1, :player2
 
   def initialize
-    @games = []
+    @games = {}
     @pending_clients = []
   end
 
   def port_number
-    3337
+    3338
   end
 
   def games_count
-    @games
+    @games.count
   end
 
   def start
@@ -27,12 +26,12 @@ class WarSocketServer
   end
 
   def accept_new_client(player_name)
-    client = @server.accept_nonblock
+    client = [player_name, @server.accept_nonblock]
     @pending_clients.push(client)
     if @pending_clients.size.odd?
-      client.puts "Welcome, waiting for opponent.\n"
+      client[1].puts "Welcome, waiting for opponent.\n"
     else
-      client.puts "Welcome, the game will start soon.\n"
+      client[1].puts "Welcome, the game will start soon.\n"
     end
   rescue IO::WaitReadable, Errno::EINTR
     puts "No client to accept"
@@ -42,17 +41,48 @@ class WarSocketServer
     if @pending_clients.size > 1
       game = WarGame.new
       game.start
-      @games.push(game)
+      @games.store(game, @pending_clients.shift(2))
     end
   end
 
-  def ready_to_play_next_round(delay=0.1)
+  def ready_to_play_next_round(delay=0.1, game_id)
     sleep(delay)
-    if @pending_clients[0].read_nonblock(1000).chomp == 'yes' || @pending_clients[1].read_nonblock(1000).chomp == 'yes'
+    players_array = @games.values[game_id]
+    if players_array[0][1].read_nonblock(1000).chomp == 'yes' || players_array[1][1].read_nonblock(1000).chomp == 'yes'
       return true
     end
   rescue IO::WaitReadable
     return false
+  end
+
+  def games(game_id)
+    @games.values[game_id]
+  end
+
+  def find_game(game)
+    @games.keys[game]
+  end
+
+  def find_client_name(game_id, client_id)
+    client = @games.values[game_id][client_id][0]
+  end
+
+  def set_player_hand(game_id, cards, player)
+    game = find_game(game_id)
+    if player == 'player1'
+      game.player1.set_hand(cards)
+    else
+      game.player2.set_hand(cards)
+    end
+  end
+
+  def run_round(game_id)
+    game = @games.keys[game_id]
+    player1 = @games.values[game_id][0][1]
+    player2 = @games.values[game_id][1][1]
+    result = game.play_round
+    player1.puts result
+    player2.puts result
   end
 
   def stop

@@ -3,6 +3,7 @@ require_relative 'card_deck'
 require_relative 'war_round'
 
 class WarGame
+  attr_reader :player1, :player2
   def start
     deck = CardDeck.new
     deck.deal(player1_cards = [], player2_cards = [])

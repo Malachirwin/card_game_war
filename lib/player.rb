@@ -16,6 +16,10 @@ class Player
     @cards.shift
   end
 
+  def set_hand(cards)
+    @cards = cards
+  end
+
   def take(cards)
     @cards.push(*cards)
   end
