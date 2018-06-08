@@ -25,9 +25,9 @@ class WarGame
 
   def winner
     if @player2.cards_left == 0
-      @player1
+      return @player1
     elsif @player1.cards_left == 0
-      @player2
+      return @player2
     end
   end
 end

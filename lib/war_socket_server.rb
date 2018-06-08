@@ -25,16 +25,17 @@ class WarSocketServer
     @server = TCPServer.new(port_number)
   end
 
-  def accept_new_client(player_name)
-    client = [player_name, @server.accept_nonblock]
+  def accept_new_client
+    client = @server.accept_nonblock
     @pending_clients.push(client)
     if @pending_clients.size.odd?
-      client[1].puts "Welcome, waiting for opponent.\n"
+      client.puts "Welcome, waiting for opponent. you are player 1\n"
     else
-      client[1].puts "Welcome, the game will start soon.\n"
+      client.puts "Welcome, the game will start soon. you are player 2\n"
     end
   rescue IO::WaitReadable, Errno::EINTR
     puts "No client to accept"
+    sleep(2)
   end
 
   def create_game_if_possible
@@ -42,17 +43,33 @@ class WarSocketServer
       game = WarGame.new
       game.start
       @games.store(game, @pending_clients.shift(2))
+      return game
+    else
+      return false
     end
   end
 
-  def ready_to_play_next_round(delay=0.1, game_id)
-    sleep(delay)
-    players_array = @games.values[game_id]
-    if players_array[0][1].read_nonblock(1000).chomp == 'yes' || players_array[1][1].read_nonblock(1000).chomp == 'yes'
-      return true
+  def if_yes(client)
+      client = 'yes'
+  end
+
+
+  def ready_to_play_next_round(client1_input = '', client2_input = '', game)
+    if client1_input == ''
+      client1_input = capture_output(game, 0)
     end
-  rescue IO::WaitReadable
-    return false
+    if client2_input == ''
+      client2_input = capture_output(game, 1)
+    end
+    if client1_input == "yes\n" && client2_input == "yes\n"
+      return true
+    elsif client1_input == "yes\n"
+      ready_to_play_next_round("yes\n", "", game)
+    elsif client2_input == "yes\n"
+      ready_to_play_next_round("", "yes\n", game)
+    else
+      ready_to_play_next_round(game)
+    end
   end
 
   def games(game_id)
@@ -64,7 +81,7 @@ class WarSocketServer
   end
 
   def find_client_name(game_id, client_id)
-    client = @games.values[game_id][client_id][0]
+    @games.values[game_id][client_id]
   end
 
   def set_player_hand(game_id, cards, player)
@@ -76,17 +93,66 @@ class WarSocketServer
     end
   end
 
+  def client_winner?(game_id)
+    game = find_game(game_id)
+    if game.winner
+      game.winner.name
+    end
+  end
+
+  def cards_in_hands(game_id)
+    game = find_game(game_id)
+    client1 = find_client_name(game_id, 0)
+    client2 = find_client_name(game_id, 1)
+    client1.puts "You have #{game.player1.cards_left} cards left in your hand."
+    client2.puts "You have #{game.player2.cards_left} cards left in your hand."
+  end
+
+  def run_game(game)
+    game_id = @games.keys.index(game)
+    inform_clients_ready(game_id)
+    until client_winner?(game_id)
+      ready_to_play_next_round(game)
+      run_round(game_id)
+      cards_in_hands(game_id)
+    end
+    end_game(game_id)
+  end
+
+  def inform_clients_ready(game_id)
+    find_client_name(game_id, 0).puts "Your Game is starting, Are you ready?\n"
+    find_client_name(game_id, 1).puts "Your Game is starting, Are you ready?\n"
+  end
+
+  def end_game(game_id)
+    find_client_name(game_id, 0).puts "The game has been completed!"
+    find_client_name(game_id, 1).puts "The game has been completed!"
+  end
+
+  def game_end_options(game_id)
+    find_client_name(game_id, 0).puts "Do you want to play another game?\n"
+    find_client_name(game_id, 1).puts "Do you want to play another game?\n"
+  end
+
   def run_round(game_id)
-    game = @games.keys[game_id]
-    player1 = @games.values[game_id][0][1]
-    player2 = @games.values[game_id][1][1]
+    game = find_game(game_id)
+    client1 = find_client_name(game_id, 0)
+    client2 = find_client_name(game_id, 1)
     result = game.play_round
-    player1.puts result
-    player2.puts result
+    client1.puts result
+    client2.puts result
   end
 
   def stop
     @server.close if @server
   end
 
+  private
+  def capture_output(delay=0.1, game, wanted_client)
+    sleep(delay)
+    client = @games[game][wanted_client]
+    output = client.read_nonblock(1000)
+  rescue IO::WaitReadable
+    output = ""
+  end
 end
