@@ -194,6 +194,19 @@ describe WarSocketServer do
       expect(@client2.capture_output).to eq ("The game has been completed!\n")
     end
 
+    it 'tests if clients are ready to play nexxt round' do
+      @server.create_game_if_possible
+      @client1.capture_output
+      @client2.capture_output
+      game_id = 0
+      @server.end_game(game_id)
+      @client1.capture_output
+      @client2.capture_output
+      @server.inform_clients_ready_to_play_round(game_id)
+      expect(@client1.capture_output).to eq ("Are you ready to play the next round?\n")
+      expect(@client2.capture_output).to eq ("Are you ready to play the next round?\n")
+    end
+
     it 'tests end game if client wants to play agian' do
       @server.create_game_if_possible
       @client1.capture_output

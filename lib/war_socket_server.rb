@@ -111,7 +111,9 @@ class WarSocketServer
   def run_game(game)
     game_id = @games.keys.index(game)
     inform_clients_ready(game_id)
+    ready_to_play_next_round(game)
     until client_winner?(game_id)
+      inform_clients_ready_to_play_round(game_id)
       ready_to_play_next_round(game)
       run_round(game_id)
       cards_in_hands(game_id)
@@ -122,6 +124,11 @@ class WarSocketServer
   def inform_clients_ready(game_id)
     find_client_name(game_id, 0).puts "Your Game is starting, Are you ready?\n"
     find_client_name(game_id, 1).puts "Your Game is starting, Are you ready?\n"
+  end
+
+  def inform_clients_ready_to_play_round(game_id)
+    find_client_name(game_id, 0).puts "Are you ready to play the next round?\n"
+    find_client_name(game_id, 1).puts "Are you ready to play the next round?\n"
   end
 
   def end_game(game_id)
