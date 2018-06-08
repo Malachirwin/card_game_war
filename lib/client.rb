@@ -5,16 +5,16 @@ while true
     client = TCPSocket.new '10.0.0.150', 3338
     puts client.gets
     puts client.gets
-    answer = ''
+    answer = "yes\n"
     until answer == "yes\n"
-      answer = gets
+      answer = gets.downcase
     end
     client.puts answer
     while true
       puts client.gets
       #answer = ''
       until answer == "yes\n"
-        answer = gets
+        answer = gets.downcase
       end
       client.puts answer
       puts client.gets
@@ -23,7 +23,7 @@ while true
   rescue Errno::ECONNREFUSED
     puts "Waiting for server to start..."
     sleep(3)
-  rescue EOFERROR
+  rescue EOFError
     puts "Game Over"
     break
   end

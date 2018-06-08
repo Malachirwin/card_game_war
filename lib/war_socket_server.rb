@@ -54,22 +54,18 @@ class WarSocketServer
   end
 
 
-  def ready_to_play_next_round(client1_input = '', client2_input = '', game)
-    if client1_input == ''
-      client1_input = capture_output(game, 0)
+  def ready_to_play_next_round(game)
+    client1_input = ''
+    client2_input = ''
+    until client1_input == "yes\n" && client2_input == "yes\n"
+      if client1_input == ''
+        client1_input = capture_output(game, 0)
+      end
+      if client2_input == ''
+        client2_input = capture_output(game, 1)
+      end
     end
-    if client2_input == ''
-      client2_input = capture_output(game, 1)
-    end
-    if client1_input == "yes\n" && client2_input == "yes\n"
-      return true
-    elsif client1_input == "yes\n"
-      ready_to_play_next_round("yes\n", "", game)
-    elsif client2_input == "yes\n"
-      ready_to_play_next_round("", "yes\n", game)
-    else
-      ready_to_play_next_round(game)
-    end
+    true
   end
 
   def games(game_id)
