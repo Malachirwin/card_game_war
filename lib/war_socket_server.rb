@@ -43,26 +43,26 @@ class WarSocketServer
       game = WarGame.new
       game.start
       @games.store(game, @pending_clients.shift(2))
+      game_id = @games.keys.index(game)
+      set_player_hand(game_id, [Card.new('H', 4)], 'player1')
+      set_player_hand(game_id, [Card.new('H', 3)], 'player2')
       return game
     else
       return false
     end
   end
 
-  def if_yes(client)
-      client = 'yes'
-  end
-
-
-  def ready_to_play_next_round(game)
+  def ready_to_play_next_round(game_id)
     client1_input = ''
     client2_input = ''
+    client1_yes = ''
+    client2_yes = ''
     until client1_input == "yes\n" && client2_input == "yes\n"
       if client1_input == ''
-        client1_input = capture_output(game, 0)
+        client1_input = capture_output(game_id, 0)
       end
       if client2_input == ''
-        client2_input = capture_output(game, 1)
+        client2_input = capture_output(game_id, 1)
       end
     end
     true
@@ -76,7 +76,11 @@ class WarSocketServer
     @games.keys[game]
   end
 
-  def find_client_name(game_id, client_id)
+  def find_client_name(game, client_id)
+    @games.values[game][client_id]
+  end
+
+  def find_client(game_id, client_id)
     @games.values[game_id][client_id]
   end
 
@@ -107,14 +111,15 @@ class WarSocketServer
   def run_game(game)
     game_id = @games.keys.index(game)
     inform_clients_ready(game_id)
-    ready_to_play_next_round(game)
+    ready_to_play_next_round(game_id)
     until client_winner?(game_id)
       inform_clients_ready_to_play_round(game_id)
-      ready_to_play_next_round(game)
+      ready_to_play_next_round(game_id)
       run_round(game_id)
       cards_in_hands(game_id)
     end
-    end_game(game_id)
+    end_game(game_id, game)
+
   end
 
   def inform_clients_ready(game_id)
@@ -127,14 +132,14 @@ class WarSocketServer
     find_client_name(game_id, 1).puts "Are you ready to play the next round?\n"
   end
 
-  def end_game(game_id)
+  def end_game(game_id, game)
     find_client_name(game_id, 0).puts "The game has been completed!"
     find_client_name(game_id, 1).puts "The game has been completed!"
-  end
-
-  def game_end_options(game_id)
-    find_client_name(game_id, 0).puts "Do you want to play another game?\n"
-    find_client_name(game_id, 1).puts "Do you want to play another game?\n"
+    client1 = find_client_name(game_id, 0)
+    client1.close
+    client2 = find_client_name(game_id, 1)
+    client2.close
+    @games.reject! { |k| k == game }
   end
 
   def run_round(game_id)
@@ -151,9 +156,9 @@ class WarSocketServer
   end
 
   private
-  def capture_output(delay=0.1, game, wanted_client)
+  def capture_output(delay=0.1, game_id, wanted_client)
     sleep(delay)
-    client = @games[game][wanted_client]
+    client = find_client_name(game_id, wanted_client)
     output = client.read_nonblock(1000)
   rescue IO::WaitReadable
     output = ""

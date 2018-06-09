@@ -1,36 +1,14 @@
 require 'socket'
-require 'pry'
-
-please_end = 'no'
 
 while true
   begin
     client = TCPSocket.new '10.0.0.150', 3338
     puts client.gets
     puts client.gets
-    answer = ""
-    until answer == "yes\n"
-      answer = gets.downcase
-    end
-    client.puts answer
+    client.puts "yes\n"
     while true
-      ask = client.gets
-      puts ask
-      if ask == "The game has been completed!\n"
-        puts 'Do you want to play again?'
-        answer = gets.downcase
-        if answer == "yes\n"
-          break
-        else
-          please_end = 'yes'
-          break
-        end
-      end
-      answer = ''
-      until answer == "yes\n"
-        answer = gets.downcase
-      end
-      client.puts answer
+      puts client.gets
+      client.puts "yes\n"
       puts client.gets
       puts client.gets
     end
@@ -40,13 +18,9 @@ while true
   rescue Errno::EPIPE
     puts "The server was shut down"
   rescue Errno::ECONNRESET
-    puts "Do you want to play again"
+    puts "Sorry you were disconnected we will try to re connect you soon"
   rescue EOFError
     puts "Game Over"
-    break
-  end
-  if please_end == 'yes'
-    break
   end
 end
 

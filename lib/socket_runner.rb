@@ -10,6 +10,8 @@ loop do
   if game
     Thread.new { server.run_game(game) }
   end
+rescue EOFError
+  puts 'game has ended'
 rescue
   server.stop
 end
