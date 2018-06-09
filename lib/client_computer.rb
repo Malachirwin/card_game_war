@@ -3,14 +3,18 @@ require 'socket'
 while true
   begin
     client = TCPSocket.new '10.0.0.150', 3338
-    puts client.gets
-    puts client.gets
+    client.gets
+    client.gets
     client.puts "yes\n"
     while true
-      puts client.gets
+      ask = client.gets
+      if ask == "The game has been completed!\n"
+        client.gets
+        break
+      end
       client.puts "yes\n"
-      puts client.gets
-      puts client.gets
+      client.gets
+      client.gets
     end
   rescue Errno::ECONNREFUSED
     puts "Waiting for server to start..."

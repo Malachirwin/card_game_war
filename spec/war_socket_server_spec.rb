@@ -92,6 +92,25 @@ describe WarSocketServer do
     @server.create_game_if_possible
   end
 
+  it 'tests if clients are ready to play next round' do
+    @server.start
+    client1 = MockWarSocketClient.new(@server.port_number)
+    @clients.push(client1)
+    @server.accept_new_client
+    client2 = MockWarSocketClient.new(@server.port_number)
+    @clients.push(client2)
+    @server.accept_new_client
+    @server.create_game_if_possible
+    client1.capture_output
+    client2.capture_output
+    game_id = 0
+    client1.capture_output
+    client2.capture_output
+    @server.inform_clients_ready_to_play_round(game_id)
+    expect(client1.capture_output).to eq ("Are you ready to play the next round?\n")
+    expect(client2.capture_output).to eq ("Are you ready to play the next round?\n")
+  end
+
   context 'war game' do
     before(:each) do
       @clients = []
@@ -139,7 +158,7 @@ describe WarSocketServer do
       @server.create_game_if_possible
       @client1.capture_output
       @client2.capture_output
-      @server.end_game(game_id, game)
+      @server.inform_end_game(game_id)
       expect(@client1.capture_output).to eq "The game has been completed!\n"
       expect(@client2.capture_output).to eq "The game has been completed!\n"
     end
@@ -184,29 +203,6 @@ describe WarSocketServer do
       expect(@client1.capture_output).to eq ("You have 26 cards left in your hand.\n")
     end
 
-    it 'tests end game' do
-      game = @server.create_game_if_possible
-      @client1.capture_output
-      @client2.capture_output
-      game_id = 0
-      @server.end_game(game_id, game)
-      expect(@client1.capture_output).to eq ("The game has been completed!\n")
-      expect(@client2.capture_output).to eq ("The game has been completed!\n")
-    end
-
-    it 'tests if clients are ready to play nexxt round' do
-      game = @server.create_game_if_possible
-      @client1.capture_output
-      @client2.capture_output
-      game_id = 0
-      @server.end_game(game_id, game)
-      @client1.capture_output
-      @client2.capture_output
-      @server.inform_clients_ready_to_play_round(game_id)
-      expect(@client1.capture_output).to eq ("Are you ready to play the next round?\n")
-      expect(@client2.capture_output).to eq ("Are you ready to play the next round?\n")
-    end
-
     it 'sees if clients are ready to play' do
       game_id = 2
       @server.create_game_if_possible
@@ -220,6 +216,26 @@ describe WarSocketServer do
       expect(@server.ready_to_play_next_round(game_id)).to eq(true)
     end
 
+    it 'tests inform end game' do
+      game = @server.create_game_if_possible
+      @client3.capture_output
+      @client4.capture_output
+      game_id = 1
+      @server.inform_end_game(game_id)
+      expect(@client3.capture_output).to eq ("The game has been completed!\n")
+      expect(@client4.capture_output).to eq ("The game has been completed!\n")
+    end
+
+    it 'tests end game options' do
+      game = @server.create_game_if_possible
+      @client3.capture_output
+      @client4.capture_output
+      game_id = 1
+      @server.end_game_options(game_id)
+      expect(@client3.capture_output).to eq ("Do you want to play again?\n")
+      expect(@client4.capture_output).to eq ("Do you want to play again?\n")
+    end
+
     it 'Sees if there is a winner' do
       game = @server.create_game_if_possible
       @client1.capture_output
@@ -229,8 +245,6 @@ describe WarSocketServer do
       @server.set_player_hand(game_id, [Card.new("H", 6)], "player2")
       @server.run_round(game_id)
       expect(@server.client_winner?(game_id)).to eq 'player1'
-      @server.end_game(game_id, game)
-      expect(@server.games_count).to eq 1
     end
 
   end

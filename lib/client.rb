@@ -17,7 +17,7 @@ while true
       ask = client.gets
       puts ask
       if ask == "The game has been completed!\n"
-        puts 'Do you want to play again?'
+        puts client.gets
         answer = gets.downcase
         if answer == "yes\n"
           break
@@ -40,7 +40,7 @@ while true
   rescue Errno::EPIPE
     puts "The server was shut down"
   rescue Errno::ECONNRESET
-    puts "Do you want to play again"
+    puts "Sorry the server was shut down."
   rescue EOFError
     puts "Game Over"
     break

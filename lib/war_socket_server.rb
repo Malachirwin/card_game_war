@@ -44,8 +44,8 @@ class WarSocketServer
       game.start
       @games.store(game, @pending_clients.shift(2))
       game_id = @games.keys.index(game)
-      set_player_hand(game_id, [Card.new('H', 4)], 'player1')
-      set_player_hand(game_id, [Card.new('H', 3)], 'player2')
+      # set_player_hand(game_id, [Card.new('H', 4)], 'player1')
+      # set_player_hand(game_id, [Card.new('H', 3)], 'player2')
       return game
     else
       return false
@@ -118,8 +118,9 @@ class WarSocketServer
       run_round(game_id)
       cards_in_hands(game_id)
     end
-    end_game(game_id, game)
-
+    inform_end_game(game_id)
+    end_game_options(game_id)
+    close_clients(game_id)
   end
 
   def inform_clients_ready(game_id)
@@ -132,14 +133,21 @@ class WarSocketServer
     find_client_name(game_id, 1).puts "Are you ready to play the next round?\n"
   end
 
-  def end_game(game_id, game)
+  def inform_end_game(game_id)
     find_client_name(game_id, 0).puts "The game has been completed!"
     find_client_name(game_id, 1).puts "The game has been completed!"
+  end
+
+  def close_clients(game_id)
     client1 = find_client_name(game_id, 0)
     client1.close
     client2 = find_client_name(game_id, 1)
     client2.close
-    @games.reject! { |k| k == game }
+  end
+
+  def end_game_options(game_id)
+    find_client_name(game_id, 0).puts "Do you want to play again?\n"
+    find_client_name(game_id, 1).puts "Do you want to play again?\n"
   end
 
   def run_round(game_id)
