@@ -40,7 +40,7 @@ while true
   rescue Errno::EPIPE
     puts "The server was shut down"
   rescue Errno::ECONNRESET
-    puts "Sorry the server was shut down."
+    puts "Sorry some thing went wrong we will connect you to a new game"
   rescue EOFError
     puts "Game Over"
     break

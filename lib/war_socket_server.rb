@@ -14,7 +14,7 @@ class WarSocketServer
   end
 
   def port_number
-    3338
+    14000
   end
 
   def games_count
@@ -55,8 +55,6 @@ class WarSocketServer
   def ready_to_play_next_round(game_id)
     client1_input = ''
     client2_input = ''
-    client1_yes = ''
-    client2_yes = ''
     until client1_input == "yes\n" && client2_input == "yes\n"
       if client1_input == ''
         client1_input = capture_output(game_id, 0)
@@ -111,7 +109,6 @@ class WarSocketServer
   def run_game(game)
     game_id = @games.keys.index(game)
     inform_clients_ready(game_id)
-    ready_to_play_next_round(game_id)
     until client_winner?(game_id)
       inform_clients_ready_to_play_round(game_id)
       ready_to_play_next_round(game_id)
